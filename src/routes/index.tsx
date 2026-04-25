@@ -12,7 +12,10 @@ export const Route = createFileRoute("/")({
           "Score de crédito justo para motoristas de app, entregadores e MEIs, baseado no seu fluxo de caixa real via Open Finance.",
       },
       { property: "og:title", content: "OpenCred — Score justo para autônomos" },
-      { property: "og:description", content: "Conecte suas plataformas e bancos. Ganhe um score baseado no seu trabalho real." },
+      {
+        property: "og:description",
+        content: "Conecte suas plataformas e bancos. Ganhe um score baseado no seu trabalho real.",
+      },
     ],
   }),
   component: Landing,
@@ -27,7 +30,7 @@ function Landing() {
       <section className="relative mx-auto max-w-7xl px-6 pt-20 pb-28">
         <div className="mx-auto max-w-3xl text-center">
           <span className="glass inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs text-muted-foreground">
-            <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
+            <span className="h-1.5 w-1.5 rounded-full bg-success" />
             Open Finance · Score em tempo real
           </span>
           <h1 className="mt-6 text-5xl font-bold leading-[1.05] tracking-tight md:text-7xl">
@@ -41,21 +44,21 @@ function Landing() {
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
             <Link
               to="/register"
-              className="group inline-flex items-center gap-2 rounded-xl bg-gradient-primary px-6 py-3.5 font-medium text-white shadow-glow transition hover:opacity-90"
+              className="group inline-flex items-center gap-2 rounded-xl bg-gradient-primary px-6 py-3.5 text-sm font-semibold text-white shadow-glow transition hover:opacity-90"
             >
               Simular meu Score
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
             </Link>
             <Link
               to="/dashboard"
-              className="glass rounded-xl px-6 py-3.5 font-medium hover:bg-white/10 transition"
+              className="glass rounded-xl px-6 py-3.5 text-sm font-medium hover:bg-white/10 transition"
             >
               Ver demo do Dashboard
             </Link>
           </div>
         </div>
 
-        {/* Floating preview card */}
+        {/* Stats card */}
         <div className="relative mx-auto mt-20 max-w-4xl">
           <div className="glass-strong rounded-3xl p-8 shadow-glow-purple">
             <div className="grid gap-6 md:grid-cols-3">
@@ -73,17 +76,17 @@ function Landing() {
           <Feature
             Icon={Briefcase}
             title="Plataformas de trabalho"
-            text="Uber, iFood, 99, Rappi. Cada corrida e entrega vira histórico."
+            text="Uber, iFood, 99, Rappi. Cada corrida e entrega vira histórico de crédito."
           />
           <Feature
             Icon={Building2}
             title="Open Finance"
-            text="Conecte Nubank, Itaú e outros bancos com segurança regulada."
+            text="Conecte Nubank, Itaú e outros bancos com segurança regulada pelo Banco Central."
           />
           <Feature
             Icon={Zap}
             title="Score em segundos"
-            text="Algoritmo justo que entende o fluxo de caixa do trabalhador autônomo."
+            text="Algoritmo que entende o fluxo de caixa real do trabalhador autônomo."
           />
         </div>
       </section>
@@ -95,13 +98,14 @@ function Landing() {
           <div className="relative">
             <h2 className="text-3xl font-bold md:text-4xl">Pronto para descobrir seu score?</h2>
             <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
-              Leva menos de 2 minutos. 100% gratuito, sem afetar seu CPF.
+              Leva menos de 2 minutos. Totalmente gratuito, sem afetar seu CPF.
             </p>
             <Link
               to="/register"
-              className="mt-8 inline-flex items-center gap-2 rounded-xl bg-gradient-primary px-6 py-3.5 font-medium text-white shadow-glow"
+              className="mt-8 inline-flex items-center gap-2 rounded-xl bg-gradient-primary px-6 py-3.5 text-sm font-semibold text-white shadow-glow"
             >
-              Começar agora <ArrowRight className="h-4 w-4" />
+              Começar agora
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
@@ -114,10 +118,20 @@ function Landing() {
   );
 }
 
-function Stat({ icon: Icon, label, value, tone }: { icon: typeof TrendingUp; label: string; value: string; tone: "neon" | "muted" }) {
+function Stat({
+  icon: Icon,
+  label,
+  value,
+  tone,
+}: {
+  icon: typeof TrendingUp;
+  label: string;
+  value: string;
+  tone: "neon" | "muted";
+}) {
   return (
     <div className="flex items-center gap-4">
-      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10">
+      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 shrink-0">
         <Icon className="h-5 w-5" />
       </div>
       <div>
@@ -128,14 +142,22 @@ function Stat({ icon: Icon, label, value, tone }: { icon: typeof TrendingUp; lab
   );
 }
 
-function Feature({ Icon, title, text }: { Icon: typeof TrendingUp; title: string; text: string }) {
+function Feature({
+  Icon,
+  title,
+  text,
+}: {
+  Icon: typeof TrendingUp;
+  title: string;
+  text: string;
+}) {
   return (
     <div className="glass rounded-2xl p-6">
-      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-primary shadow-glow">
+      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-primary shadow-glow shrink-0">
         <Icon className="h-5 w-5 text-white" />
       </div>
-      <h3 className="mt-4 text-lg font-semibold">{title}</h3>
-      <p className="mt-2 text-sm text-muted-foreground">{text}</p>
+      <h3 className="mt-4 text-base font-semibold">{title}</h3>
+      <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{text}</p>
     </div>
   );
 }

@@ -1,7 +1,8 @@
+import * as React from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Mail, Lock, User, ArrowRight, Sparkles, Check } from "lucide-react";
-import { WORK_CATEGORIES, type WorkCategory } from "@/lib/types";
+import { Mail, Lock, User, ArrowRight, Sparkles, Check, Car, Bike, Briefcase, MoreHorizontal } from "lucide-react";
+import type { WorkCategory } from "@/lib/types";
 
 export const Route = createFileRoute("/register")({
   head: () => ({
@@ -13,9 +14,47 @@ export const Route = createFileRoute("/register")({
   component: RegisterPage,
 });
 
+// Categorias com ícones Lucide — sem emojis
+const WORK_CATEGORIES: { value: WorkCategory; label: string; Icon: React.ElementType }[] = [
+  { value: "driver",   label: "Motorista de App", Icon: Car },
+  { value: "courier", label: "Entregador",        Icon: Bike },
+  { value: "freelancer",      label: "Autônomo / MEI",    Icon: Briefcase },
+  { value: "other",    label: "Outros",             Icon: MoreHorizontal },
+];
+
 function RegisterPage() {
+  const navigate = useNavigate({ from: "/register" });
+
+  const [name, setName]         = useState("");
+  const [email, setEmail]       = useState("");
+  const [password, setPassword] = useState("");
   const [category, setCategory] = useState<WorkCategory>("driver");
-  const navigate = useNavigate();
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState("");
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch("http://localhost:1818/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ full_name: name, email, password, category }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao criar conta. Este e-mail já está em uso?");
+      }
+
+      navigate({ to: "/login" });
+    } catch (err: any) {
+      setError(err.message || "Erro ao conectar no servidor");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center px-6 py-12">
@@ -35,38 +74,63 @@ function RegisterPage() {
             Em 2 minutos você descobre seu Score OpenCred.
           </p>
 
-          <form
-            className="mt-8 space-y-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              navigate({ to: "/dashboard" });
-            }}
-          >
-            <Field icon={User} placeholder="Como você se chama?" label="Nome" />
-            <Field icon={Mail} type="email" placeholder="seu@email.com" label="E-mail" />
-            <Field icon={Lock} type="password" placeholder="••••••••" label="Senha" />
+          <form className="mt-8 space-y-4" onSubmit={handleRegister}>
+            {error && (
+              <div className="rounded-xl bg-destructive/15 px-4 py-3 text-sm font-medium text-destructive">
+                {error}
+              </div>
+            )}
+
+            <Field
+              icon={User}
+              placeholder="Como você se chama?"
+              label="Nome"
+              value={name}
+              onChange={(e: any) => setName(e.target.value)}
+              required
+            />
+            <Field
+              icon={Mail}
+              type="email"
+              placeholder="seu@email.com"
+              label="E-mail"
+              value={email}
+              onChange={(e: any) => setEmail(e.target.value)}
+              required
+            />
+            <Field
+              icon={Lock}
+              type="password"
+              placeholder="••••••••"
+              label="Senha"
+              value={password}
+              onChange={(e: any) => setPassword(e.target.value)}
+              required
+            />
 
             <div>
-              <span className="mb-2 block text-xs font-medium text-muted-foreground">
+              <span className="mb-2 block text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Categoria de trabalho
               </span>
               <div className="grid grid-cols-2 gap-2">
-                {WORK_CATEGORIES.map((cat) => {
-                  const active = category === cat.value;
+                {WORK_CATEGORIES.map(({ value, label, Icon }) => {
+                  const active = category === value;
                   return (
                     <button
-                      key={cat.value}
+                      key={value}
                       type="button"
-                      onClick={() => setCategory(cat.value)}
-                      className={`group relative flex items-center gap-2 rounded-xl border px-3 py-3 text-left text-sm transition ${
+                      onClick={() => setCategory(value)}
+                      className={`relative flex items-center gap-2.5 rounded-xl border px-3 py-3 text-left text-sm transition ${
                         active
                           ? "border-transparent bg-gradient-primary text-white shadow-glow"
                           : "border-white/10 bg-white/5 hover:bg-white/10"
                       }`}
                     >
-                      <span className="text-lg">{cat.emoji}</span>
-                      <span className="font-medium">{cat.label}</span>
-                      {active && <Check className="ml-auto h-4 w-4" />}
+                      <div className={`flex h-7 w-7 items-center justify-center rounded-lg shrink-0 ${active ? "bg-white/20" : "bg-white/10"}`}>
+                        <Icon className="h-3.5 w-3.5" />
+                      </div>
+                      <span className="font-medium leading-tight">{label}</span>
+                      {active && <Check className="ml-auto h-4 w-4 shrink-0" />}
                     </button>
                   );
                 })}
@@ -75,9 +139,11 @@ function RegisterPage() {
 
             <button
               type="submit"
-              className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-primary px-4 py-3 font-medium text-white shadow-glow transition hover:opacity-90"
+              disabled={loading}
+              className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-primary px-4 py-3 text-sm font-semibold text-white shadow-glow transition hover:opacity-90 disabled:opacity-50"
             >
-              Criar conta e simular score <ArrowRight className="h-4 w-4" />
+              {loading ? "Criando conta..." : "Criar conta e simular score"}
+              {!loading && <ArrowRight className="h-4 w-4" />}
             </button>
           </form>
 
@@ -93,14 +159,18 @@ function RegisterPage() {
   );
 }
 
-function Field({ icon: Icon, label, ...props }: { icon: typeof Mail; label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+function Field({ icon: Icon, label, value, onChange, ...props }: any) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-xs font-medium text-muted-foreground">{label}</span>
-      <div className="glass flex items-center gap-3 rounded-xl px-4 py-3 focus-within:border-white/30">
-        <Icon className="h-4 w-4 text-muted-foreground" />
+      <span className="mb-1.5 block text-xs font-medium text-muted-foreground uppercase tracking-wider">
+        {label}
+      </span>
+      <div className="glass flex items-center gap-3 rounded-xl px-4 py-3 focus-within:border-white/30 transition">
+        <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
         <input
           {...props}
+          value={value}
+          onChange={onChange}
           className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
         />
       </div>
